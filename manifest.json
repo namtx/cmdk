@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Command K",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An Arc-style ⌘K command bar for Chrome: switch tabs, search bookmarks and history, and run browser actions.",
   "icons": {
     "16": "icons/icon16.png",

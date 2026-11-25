@@ -58,10 +58,12 @@ const svg = (name) =>
 // Init
 // ---------------------------------------------------------------------------
 
+const SID = params.get('sid');
+
 init();
 
 async function init() {
-  input.focus();
+  ensureFocus();
   ctx.tab = await getTargetTab();
   ctx.windowId = ctx.tab?.windowId;
   await refreshTabs();
@@ -538,6 +540,41 @@ function close() {
 // Events
 // ---------------------------------------------------------------------------
 
+// Chrome ignores `autofocus` in cross-origin iframes, and the frame may not be
+// focused yet when this script runs. Focus the input now, whenever the frame
+// gains focus, and keep asking the host page for focus until we have it.
+function ensureFocus() {
+  input.focus({ preventScroll: true });
+  if (MODE !== 'overlay') return;
+  let tries = 0;
+  const check = () => {
+    if (state.closing) return;
+    if (document.hasFocus() && document.activeElement === input) return;
+    window.parent.postMessage({ type: 'cmdk:focus' }, '*');
+    input.focus({ preventScroll: true });
+    if (++tries < 20) setTimeout(check, 50);
+  };
+  check();
+}
+
+window.addEventListener('focus', () => input.focus({ preventScroll: true }));
+
+// Clicks on the panel's background shouldn't take focus away from the input.
+document.getElementById('panel').addEventListener('mousedown', (e) => {
+  if (e.target !== input) e.preventDefault();
+});
+
+// Keys typed before focus reached this frame are forwarded by the content
+// script. The per-open sid makes sure they come from our own overlay.
+chrome.runtime.onMessage.addListener((msg) => {
+  if (MODE !== 'overlay' || !SID || msg?.type !== 'cmdk:key' || msg.sid !== SID) return;
+  input.value = msg.key === 'Backspace' ? input.value.slice(0, -1) : input.value + msg.key;
+  input.setSelectionRange(input.value.length, input.value.length);
+  input.focus({ preventScroll: true });
+  state.userMoved = false;
+  update();
+});
+
 input.addEventListener('input', () => {
   state.userMoved = false;
   update();
@@ -581,8 +618,6 @@ list.addEventListener('mousemove', (e) => {
     select(i, false);
   }
 });
-
-list.addEventListener('mousedown', (e) => e.preventDefault()); // keep focus in the input
 
 list.addEventListener('click', (e) => {
   const row = e.target.closest('.item');
