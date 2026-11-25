@@ -87,6 +87,19 @@ body.window .panel {
 }
 .search svg { width: 19px; height: 19px; color: var(--faint); flex: none; }
 
+.chip {
+  display: none;
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--sel);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+body.commands .chip { display: inline-block; }
+body.commands .search svg { display: none; }
+
 #q {
   flex: 1;
   min-width: 0;

@@ -20,6 +20,7 @@ An Arc-style ⌘K command bar for Google Chrome.
 | Key | Action |
 | --- | --- |
 | ⌘K / Esc | Open / close |
+| `>` as first character | Show commands only (e.g. `>pin`) |
 | ↑ ↓ (or Ctrl+N / Ctrl+P) | Move selection |
 | ↵ | Run, switch to the tab, or open in a new tab |
 | ⌥↵ | Open in the current tab |

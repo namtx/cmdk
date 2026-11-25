@@ -267,9 +267,21 @@ function headItems(q) {
 // ---------------------------------------------------------------------------
 
 async function update() {
-  const q = input.value.trim();
+  const raw = input.value.trimStart();
   const token = ++state.token;
   const actions = buildActions();
+
+  // ">" prefix: command mode, listing only actions (like VS Code's palette).
+  const commandMode = raw.startsWith('>');
+  document.body.classList.toggle('commands', commandMode);
+  if (commandMode) {
+    const cq = raw.slice(1).trim();
+    const items = cq ? rank(actions, tokenize(cq)) : actions;
+    render([{ title: 'Commands', items }]);
+    return;
+  }
+
+  const q = raw.trim();
   const otherTabs = ctx.tabs.filter((t) => t.id !== ctx.tab?.id);
 
   if (!q) {
