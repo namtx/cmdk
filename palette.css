@@ -1,0 +1,220 @@
+/* No color-scheme declaration on purpose: the overlay iframe must stay
+   "normal" to be transparent. Colors switch via the media query instead. */
+:root {
+  --panel: #ffffff;
+  --text: #1c1c1e;
+  --muted: #6e6e73;
+  --faint: #a1a1a6;
+  --border: rgba(0, 0, 0, 0.07);
+  --sel: rgba(108, 92, 231, 0.1);
+  --accent: #6c5ce7;
+  --icon-bg: rgba(0, 0, 0, 0.045);
+  --kbd: rgba(0, 0, 0, 0.06);
+  --backdrop: rgba(18, 18, 22, 0.24);
+  --shadow: 0 28px 70px -16px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --mark: #1c1c1e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --panel: #232326;
+    --text: #f2f2f4;
+    --muted: #a0a0a8;
+    --faint: #6f6f78;
+    --border: rgba(255, 255, 255, 0.07);
+    --sel: rgba(150, 135, 255, 0.16);
+    --accent: #a99dff;
+    --icon-bg: rgba(255, 255, 255, 0.06);
+    --kbd: rgba(255, 255, 255, 0.09);
+    --backdrop: rgba(0, 0, 0, 0.42);
+    --shadow: 0 28px 70px -16px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    --mark: #ffffff;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: transparent;
+  color: var(--text);
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+body.overlay { background: var(--backdrop); animation: fade 0.12s ease-out; }
+body.window { background: var(--panel); }
+
+.panel {
+  position: absolute;
+  left: 50%;
+  top: 15vh;
+  transform: translateX(-50%);
+  width: min(680px, calc(100vw - 32px));
+  max-height: min(580px, 72vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  animation: pop 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+
+body.window .panel {
+  position: static;
+  transform: none;
+  width: 100%;
+  height: 100vh;
+  max-height: none;
+  border-radius: 0;
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: translateX(-50%) scale(0.97); } }
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.search svg { width: 19px; height: 19px; color: var(--faint); flex: none; }
+
+#q {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 19px;
+  caret-color: var(--accent);
+}
+#q::placeholder { color: var(--faint); }
+
+#list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 8px 8px;
+  scroll-padding: 28px 0 8px;
+}
+#list::-webkit-scrollbar { width: 0; }
+
+.section {
+  padding: 10px 12px 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  cursor: default;
+  user-select: none;
+}
+.item.sel { background: var(--sel); }
+
+.icon {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--icon-bg);
+  color: var(--muted);
+}
+.icon img { width: 16px; height: 16px; border-radius: 3px; }
+.icon svg { width: 16px; height: 16px; }
+.item.sel .icon { color: var(--accent); }
+
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.title {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sub {
+  flex: 0 4 auto;
+  min-width: 40px;
+  font-size: 12.5px;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+mark { background: none; color: var(--mark); font-weight: 650; }
+
+.hint { flex: none; font-size: 12px; color: var(--faint); }
+.hint.on-sel { display: none; }
+.item.sel .hint.on-sel { display: inline; color: var(--muted); }
+
+.empty { padding: 28px 12px; text-align: center; color: var(--faint); }
+
+footer {
+  flex: none;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 9px 18px;
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--muted);
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+footer .spacer { flex: 1; }
+footer span { display: inline-flex; align-items: center; gap: 5px; }
+kbd {
+  font: inherit;
+  font-size: 11px;
+  min-width: 18px;
+  text-align: center;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--kbd);
+  color: var(--text);
+}
+
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  transform: translate(-50%, 8px);
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--panel);
+  font-size: 12.5px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { background: #e5484d; color: #fff; }
